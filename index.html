@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magna Games</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #7a6130;
+    --dark: #0a0805;
+    --dark2: #110e08;
+    --dark3: #1a1509;
+    --parchment: #f0e6c8;
+    --parchment-dim: #c8b890;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--dark); font-family: 'Crimson Pro', Georgia, serif; color: var(--parchment); overflow-x: hidden; }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--d) ease-in-out infinite; animation-delay: var(--delay); opacity: 0; }
+  @keyframes twinkle { 0%, 100% { opacity: 0; } 50% { opacity: var(--max-opacity); } }
+
+  /* LANDING */
+  #screen-landing {
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 20px; position: relative; z-index: 1;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  #screen-landing.fade-out { opacity: 0; transform: scale(1.04); pointer-events: none; }
+  #screen-landing::after {
+    content: ''; position: absolute; top: 50%; left: 50%; width: 700px; height: 700px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse at center, rgba(201,168,76,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .crest { font-size: 64px; margin-bottom: 12px; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 0 20px rgba(201,168,76,0.4)); }
+  @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+  .brand-title {
+    font-family: 'Cinzel Decorative', serif; font-size: clamp(36px, 8vw, 80px); font-weight: 900;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, var(--gold-dim) 0%, var(--gold-light) 40%, var(--gold) 60%, var(--gold-dim) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    line-height: 1.1; text-align: center; animation: shimmer 4s linear infinite; background-size: 200% auto;
+  }
+  @keyframes shimmer { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+  .brand-subtitle { font-family: 'Cinzel Decorative', serif; font-size: clamp(10px, 2vw, 14px); letter-spacing: 0.5em; color: var(--gold-dim); margin-top: 6px; margin-bottom: 48px; text-align: center; }
+  .divider { display: flex; align-items: center; gap: 16px; width: 100%; max-width: 640px; margin: 0 auto 40px; }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; }
+  .divider::before { background: linear-gradient(to right, transparent, var(--gold-dim)); }
+  .divider::after { background: linear-gradient(to left, transparent, var(--gold-dim)); }
+  .divider span { color: var(--gold); font-size: 18px; }
+  .bio-card {
+    background: linear-gradient(135deg, rgba(201,168,76,0.05), rgba(201,168,76,0.02));
+    border: 1px solid rgba(201,168,76,0.2); padding: 36px 44px; max-width: 640px; width: 100%;
+    position: relative; margin-bottom: 48px;
+  }
+  .bio-card::before, .bio-card::after { content: ''; position: absolute; width: 20px; height: 20px; border-color: var(--gold-dim); border-style: solid; }
+  .bio-card::before { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
+  .bio-card::after { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
+  .bio-name { font-family: 'Cinzel Decorative', serif; font-size: 22px; color: var(--gold); margin-bottom: 20px; letter-spacing: 0.1em; }
+  .bio-text { font-size: 19px; line-height: 1.8; color: var(--parchment-dim); font-weight: 300; }
+  .bio-text em { color: var(--parchment); font-style: italic; }
+  .bio-text .highlight { color: var(--gold-light); font-weight: 400; }
+  .dog-note { margin-top: 20px; font-style: italic; font-size: 17px; color: var(--gold-dim); border-left: 2px solid var(--gold-dim); padding-left: 14px; animation: pulse-opacity 3s ease-in-out infinite; }
+  @keyframes pulse-opacity { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+  .btn-enter {
+    font-family: 'Cinzel Decorative', serif; font-size: 14px; letter-spacing: 0.2em; color: var(--dark);
+    background: linear-gradient(135deg, var(--gold-dim), var(--gold), var(--gold-light), var(--gold));
+    background-size: 200% auto; border: none; padding: 18px 52px; cursor: pointer;
+    transition: all 0.3s ease; box-shadow: 0 0 30px rgba(201,168,76,0.15);
+    clip-path: polygon(14px 0%, calc(100% - 14px) 0%, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0% 50%);
+    position: relative; z-index: 1;
+  }
+  .btn-enter:hover { background-position: right center; box-shadow: 0 0 50px rgba(201,168,76,0.35); transform: translateY(-2px) scale(1.02); }
+
+  /* GAMES SCREEN */
+  #screen-games {
+    min-height: 100vh; display: none; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 20px; position: relative; z-index: 1;
+    opacity: 0; transition: opacity 0.8s ease;
+  }
+  #screen-games.visible { display: flex; }
+  #screen-games.fade-in { opacity: 1; }
+  .games-header { text-align: center; margin-bottom: 60px; }
+  .games-title { font-family: 'Cinzel Decorative', serif; font-size: clamp(20px, 4vw, 36px); color: var(--gold); letter-spacing: 0.1em; margin-bottom: 10px; }
+  .games-subtitle { font-size: 18px; color: var(--parchment-dim); font-style: italic; font-weight: 300; }
+  .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 380px)); gap: 32px; justify-content: center; max-width: 900px; width: 100%; }
+  .game-card { position: relative; background: linear-gradient(160deg, var(--dark2), var(--dark3)); border: 1px solid rgba(201,168,76,0.15); overflow: hidden; transition: all 0.4s ease; }
+  .game-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(201,168,76,0.08), transparent); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; }
+  .game-card:hover { transform: translateY(-6px); border-color: rgba(201,168,76,0.5); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201,168,76,0.1); }
+  .game-card:hover::before { opacity: 1; }
+  .card-banner { height: 160px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .banner-icon { font-size: 72px; z-index: 1; filter: drop-shadow(0 0 20px currentColor); transition: transform 0.4s ease; }
+  .game-card:hover .banner-icon { transform: scale(1.15); }
+  .maze-banner { background: linear-gradient(135deg, #0d1a0d, #1a2d10, #0d1a0d); }
+  .maze-banner::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(50,100,50,0.08) 0px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(50,100,50,0.08) 0px, transparent 1px, transparent 20px); pointer-events: none; }
+  .tales-banner { background: linear-gradient(135deg, #1a0d0d, #2d1010, #1a0d0d); }
+  .tales-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 70%, rgba(139,32,32,0.2), transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(201,168,76,0.1), transparent 60%); pointer-events: none; }
+  .card-body { padding: 24px 28px 28px; position: relative; z-index: 1; }
+  .card-game-label { font-family: 'Cinzel Decorative', serif; font-size: 10px; letter-spacing: 0.4em; color: var(--gold-dim); text-transform: uppercase; margin-bottom: 8px; }
+  .card-game-title { font-family: 'Cinzel Decorative', serif; font-size: 20px; color: var(--gold-light); margin-bottom: 12px; line-height: 1.3; }
+  .card-game-desc { font-size: 16px; color: var(--parchment-dim); line-height: 1.6; font-weight: 300; margin-bottom: 16px; }
+  .card-tag { display: inline-block; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; border: 1px solid; padding: 3px 10px; margin-right: 6px; margin-bottom: 6px; }
+  .tag-green { border-color: rgba(80,160,80,0.4); color: #80c080; }
+  .tag-red { border-color: rgba(180,60,60,0.4); color: #c08080; }
+  .tag-gold { border-color: rgba(201,168,76,0.4); color: var(--gold-dim); }
+  .btn-play {
+    display: block; width: 100%; margin-top: 20px;
+    font-family: 'Cinzel Decorative', serif; font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase;
+    padding: 14px; border: 1px solid var(--gold-dim); background: transparent; color: var(--gold);
+    cursor: pointer; transition: all 0.3s ease; position: relative; z-index: 2;
+  }
+  .btn-play:hover { background: rgba(201,168,76,0.1); border-color: var(--gold); color: var(--gold-light); box-shadow: 0 0 20px rgba(201,168,76,0.1); }
+  .back-btn { margin-top: 50px; font-family: 'Cinzel Decorative', serif; font-size: 11px; letter-spacing: 0.3em; color: var(--gold-dim); background: none; border: none; cursor: pointer; text-transform: uppercase; transition: color 0.3s; }
+  .back-btn:hover { color: var(--gold); }
+
+  /* FULLSCREEN GAME OVERLAY */
+  #game-overlay {
+    display: none; position: fixed; inset: 0; z-index: 10000;
+    background: #000; flex-direction: column;
+  }
+  #game-overlay.active { display: flex; }
+  #game-overlay-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px; background: #0a0805;
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+    flex-shrink: 0; height: 44px;
+  }
+  #game-overlay-title { font-family: 'Cinzel Decorative', serif; font-size: 13px; letter-spacing: 0.2em; color: var(--gold); }
+  #btn-close-game {
+    font-family: 'Cinzel Decorative', serif; font-size: 11px; letter-spacing: 0.2em;
+    color: var(--parchment-dim); background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.25); padding: 6px 16px; cursor: pointer; transition: all 0.2s;
+  }
+  #btn-close-game:hover { color: var(--gold); border-color: var(--gold); }
+  #game-iframe { flex: 1; width: 100%; border: none; display: block; }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+
+<!-- LANDING -->
+<div id="screen-landing">
+  <div class="crest">⚔️</div>
+  <h1 class="brand-title">Magna Games</h1>
+  <p class="brand-subtitle">by David Rosa</p>
+  <div class="divider"><span>✦</span></div>
+  <div class="bio-card">
+    <div class="bio-name">Magna · David Rosa</div>
+    <p class="bio-text">
+      <span class="highlight">Magna</span> es en realidad <em>David Rosa</em>, nacido el
+      <span class="highlight">2 de noviembre de 1992</span> en <em>Francia</em>.<br><br>
+      Su padre es de <span class="highlight">Holanda</span>, su madre es de <span class="highlight">Uruguay</span>,
+      y su hermanita también es <em>uruguaya</em>.<br><br>
+      Tiene esta página, pero en este momento está <em>muy loco</em> y le está costando pensar...
+    </p>
+    <p class="dog-note">🐶 Mirá la perrita con su ropita, qué gracioso.</p>
+  </div>
+  <button class="btn-enter" onclick="goToGames()">⚔ Entrar a los juegos de Magna ⚔</button>
+</div>
+
+<!-- GAMES SCREEN -->
+<div id="screen-games">
+  <div class="games-header">
+    <h2 class="games-title">Los Juegos de Magna</h2>
+    <p class="games-subtitle">Elegí tu destino, valiente alma</p>
+  </div>
+  <div class="games-grid">
+    <div class="game-card">
+      <div class="card-banner maze-banner">
+        <span class="banner-icon">🌿</span>
+      </div>
+      <div class="card-body">
+        <div class="card-game-label">Juego I</div>
+        <div class="card-game-title">The Maze of Magna</div>
+        <p class="card-game-desc">Defendé el laberinto. Construí torres, enfrentá oleadas de enemigos y protegé el reino de las fuerzas que avanzan sin cesar.</p>
+        <span class="card-tag tag-green">Tower Defense</span>
+        <span class="card-tag tag-gold">Estrategia</span>
+        <button class="btn-play" onclick="openGame('maze')">▶ Jugar ahora</button>
+      </div>
+    </div>
+    <div class="game-card">
+      <div class="card-banner tales-banner">
+        <span class="banner-icon">📜</span>
+      </div>
+      <div class="card-body">
+        <div class="card-game-label">Juego II</div>
+        <div class="card-game-title">The Tales of Magna</div>
+        <p class="card-game-desc">Una épica idle RPG. Reclutá héroes, coleccioná artefactos y hacé crecer tu leyenda mientras el tiempo corre a tu favor.</p>
+        <span class="card-tag tag-red">Idle RPG</span>
+        <span class="card-tag tag-gold">Aventura</span>
+        <button class="btn-play" onclick="openGame('tales')">▶ Jugar ahora</button>
+      </div>
+    </div>
+  </div>
+  <button class="back-btn" onclick="goBack()">← Volver al inicio</button>
+</div>
+
+<!-- FULLSCREEN GAME OVERLAY -->
+<div id="game-overlay">
+  <div id="game-overlay-bar">
+    <span id="game-overlay-title">Magna Games</span>
+    <button id="btn-close-game" onclick="closeGame()">✕ Volver a los juegos</button>
+  </div>
+  <iframe id="game-iframe" allowfullscreen></iframe>
+</div>
+
+<script>
+// Stars
+(function() {
+  const c = document.getElementById('stars');
+  for (let i = 0; i < 120; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const sz = Math.random() * 2 + 0.5;
+    s.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${Math.random()*4+2}s;--delay:${Math.random()*6}s;--max-opacity:${Math.random()*0.5+0.1};`;
+    c.appendChild(s);
+  }
+})();
+
+function goToGames() {
+  const landing = document.getElementById('screen-landing');
+  const games = document.getElementById('screen-games');
+  landing.classList.add('fade-out');
+  setTimeout(() => {
+    landing.style.display = 'none';
+    games.classList.add('visible');
+    requestAnimationFrame(() => requestAnimationFrame(() => games.classList.add('fade-in')));
+  }, 800);
+}
+
+function goBack() {
+  const landing = document.getElementById('screen-landing');
+  const games = document.getElementById('screen-games');
+  games.classList.remove('fade-in');
+  setTimeout(() => {
+    games.classList.remove('visible');
+    landing.style.display = 'flex';
+    landing.classList.remove('fade-out');
+  }, 800);
+}
+
+function openGame(which) {
+  const overlay = document.getElementById('game-overlay');
+  const iframe  = document.getElementById('game-iframe');
+  const title   = document.getElementById('game-overlay-title');
+  if (which === 'maze') {
+    title.textContent = '⚔ The Maze of Magna';
+    iframe.src = './maze.html';
+  } else {
+    title.textContent = '📜 The Tales of Magna';
+    iframe.src = './tales.html';
+  }
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeGame() {
+  const overlay = document.getElementById('game-overlay');
+  const iframe  = document.getElementById('game-iframe');
+  overlay.classList.remove('active');
+  iframe.src = '';
+  document.body.style.overflow = '';
+}
+</script>
+</body>
+</html>
