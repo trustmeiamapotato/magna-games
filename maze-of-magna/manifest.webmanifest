@@ -1,0 +1,35 @@
+{
+  "name": "The Maze of Magna",
+  "short_name": "Maze of Magna",
+  "description": "Guide Magna the monkey through 25 mazes. Find the key, grab the apples and escape the Guardians.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1b15",
+  "theme_color": "#0e1b15",
+  "lang": "en",
+  "categories": [
+    "games",
+    "puzzle"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
