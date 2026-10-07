@@ -295,7 +295,7 @@ html{padding-top:var(--safe-area-inset-top,env(safe-area-inset-top,0px));padding
     </div>
     <div class="menu-foot">
       <span class="bank"><svg class="apple-ico" viewBox="0 0 16 16"><circle cx="8" cy="9.5" r="5.5" fill="#e4473b"/><path d="M8 4.5 Q8.5 2 10 1.5" stroke="#7a4b22" stroke-width="1.4" fill="none"/><ellipse cx="11" cy="3.5" rx="2.2" ry="1.1" fill="#5fae4f"/></svg><span id="menu-bank">0</span></span>
-      <span id="menu-ver">v1.0</span>
+      <span id="menu-ver">v1.0.1</span>
     </div>
   </section>
 
@@ -484,7 +484,7 @@ const tx = o => o[(SAVE.opts && SAVE.opts.lang) || 'en'] ?? o.en; // para textos
 
 /* == 1. CONFIG ========================================================= */
 const CFG = {
-  version: '1.0',
+  version: '1.0.1',
   lives: 3,
   playerSpeed: 4.2,        // celdas por segundo (velocidad base, sin mejoras)
   wanderFactor: 0.82,      // velocidad del guardián al deambular (x velocidad base)
@@ -933,7 +933,10 @@ const AU = {
   ctx: null, sfx: null,
   init() {
     if (this.ctx) { if (this.ctx.state === 'suspended') this.ctx.resume(); return; }
-    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.sfx = this.ctx.destination; } catch (e) {}
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {} // iPhone: que suene aunque esté en silencio
+    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); this.sfx = this.ctx.destination;
+      const b = this.ctx.createBuffer(1, 1, 22050), src = this.ctx.createBufferSource(); src.buffer = b; src.connect(this.ctx.destination); src.start(0); // "desbloqueo" de audio en iOS
+      if (this.ctx.state === 'suspended') this.ctx.resume(); } catch (e) {}
   },
   tone(f, dur, type = 'square', vol = 0.06, slide = 0, delay = 0) {
     if (!SAVE.opts.sound || !this.ctx) return;
@@ -995,7 +998,7 @@ const MUSIC = {
   ],
   hz: m => 440 * Math.pow(2, (m - 69) / 12),
   setWorld(w) { this.world = Math.max(0, Math.min(this.T.length - 1, w)); },
-  shouldPlay() { return SAVE.opts.music && AU.ctx && !document.hidden && !(UI.cur === 'game' && GAME.state === 'paused'); },
+  shouldPlay() { return SAVE.opts.music && AU.ctx && AU.ctx.state === 'running' && !document.hidden && !(UI.cur === 'game' && GAME.state === 'paused'); },
   update() { const s = this.shouldPlay(); if (s && !this.playing) this.start(); else if (!s && this.playing) this.stop(); },
   start() {
     const c = AU.ctx; if (!c) return;
@@ -1761,7 +1764,7 @@ const INPUT = {
       else if (ev.key === 'Enter' || ev.key === ' ') { const b = document.querySelector('#ov-card .btn.primary'); if (b && !document.getElementById('ov').hidden) { ev.preventDefault(); b.click(); } }
     });
     document.addEventListener('visibilitychange', () => { if (document.hidden) GAME.pause(); });
-    document.addEventListener('pointerdown', () => AU.init(), { once: false, passive: true });
+    ['pointerdown', 'touchend', 'click'].forEach(tp => document.addEventListener(tp, () => AU.init(), { passive: true })); // iOS exige touchend/click para habilitar el audio
   }
 };
 
@@ -2188,6 +2191,12 @@ window.MAGNA = {
 // App instalable (solo en la web con https; dentro de la app Android no hace falta)
 if ('serviceWorker' in navigator && location.protocol === 'https:' && location.hostname !== 'localhost') {
   window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+// iPhone, app agregada a la pantalla de inicio: Safari calcula mal el alto y deja una franja abajo. Usamos el alto real de la pantalla.
+if (navigator.standalone) {
+  var fixH = function () { var land = Math.abs(window.orientation || 0) === 90; document.documentElement.style.height = (land ? screen.width : screen.height) + 'px'; window.scrollTo(0, 0); };
+  document.documentElement.style.overflow = 'hidden'; fixH();
+  window.addEventListener('orientationchange', function () { setTimeout(fixH, 350); }); window.addEventListener('resize', fixH); window.addEventListener('pageshow', fixH);
 }
 </script>
 </body>
